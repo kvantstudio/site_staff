@@ -1,0 +1,13 @@
+{% if nodes_links_teaser %}
+<div class="node-materials">
+    <div class="node-materials__title">{{ 'It may also interest you'|t }}</div>
+    <div class="node-materials__items">
+        {% for nid, data in nodes_links_teaser %}
+        <div class="node-materials__item">
+            <a href="{{ data.path }}">{{ data.title }}</a>
+            <div class="node-materials__created">{{ data.created }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

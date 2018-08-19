@@ -1,0 +1,20 @@
+{% if page %}
+<article class="node">
+    <div{{ content_attributes.addClass( 'node__content', 'clearfix') }}>        
+        <div class="node__image node__image--full">
+            {{ content.field_image_staff }}            
+        </div>        
+        <div class="node__summary">{{ content.field_summary }}</div> 
+        <div class="node__body">{{ content.body }}</div>
+    </div>
+</article>
+{% else %}
+<article class="node">
+    <div{{ content_attributes.addClass( 'node__content', 'clearfix') }}>        
+        <div class="node__image node__image--full">
+            {{ content.field_image_staff }}            
+        </div>        
+        <div class="node__summary">{{ content.field_summary }}</div>        
+    </div>
+</article>
+{% endif %}

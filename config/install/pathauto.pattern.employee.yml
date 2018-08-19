@@ -1,0 +1,21 @@
+langcode: ru
+status: true
+dependencies:
+  module:
+    - node
+id: employee
+label: Сотрудник
+type: 'canonical_entities:node'
+pattern: 'personal/[node:title]'
+selection_criteria:
+  91be38cd-babb-4ea6-8b31-3ce46a8d81ba:
+    id: node_type
+    bundles:
+      staff: staff
+    negate: false
+    context_mapping:
+      node: node
+    uuid: 91be38cd-babb-4ea6-8b31-3ce46a8d81ba
+selection_logic: and
+weight: -5
+relationships: {  }

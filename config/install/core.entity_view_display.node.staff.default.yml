@@ -1,0 +1,45 @@
+langcode: ru
+status: true
+dependencies:
+  config:
+    - field.field.node.staff.body
+    - field.field.node.staff.field_image_staff
+    - field.field.node.staff.field_specialty
+    - field.field.node.staff.field_summary
+    - node.type.staff
+    - responsive_image.styles.staff
+  module:
+    - responsive_image
+    - text
+    - user
+_core:
+  default_config_hash: 83xgTM-Rw_j0u8tvbBVnXv9KSfpGEgLra-d5Z_-2wHc
+id: node.staff.default
+targetEntityType: node
+bundle: staff
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  field_image_staff:
+    weight: 0
+    label: hidden
+    settings:
+      responsive_image_style: staff
+      image_link: content
+    third_party_settings: {  }
+    type: responsive_image
+  field_summary:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+hidden:
+  field_specialty: true
+  langcode: true
+  links: true

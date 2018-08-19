@@ -1,0 +1,23 @@
+langcode: ru
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.staff
+  module:
+    - text
+_core:
+  default_config_hash: Iqw2RDqzTQJB66tOuft0Q9-QtajvKInRDcCDPn33dt4
+id: node.staff.body
+field_name: body
+entity_type: node
+bundle: staff
+label: 'Описание'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

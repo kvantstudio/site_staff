@@ -1,0 +1,31 @@
+langcode: ru
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_specialty
+    - node.type.staff
+    - taxonomy.vocabulary.staff
+  content:
+    - 'taxonomy_term:staff:5ad35076-013a-4124-aa1a-8c4cd783a62e'
+id: node.staff.field_specialty
+field_name: field_specialty
+entity_type: node
+bundle: staff
+label: Специальность
+description: ''
+required: true
+translatable: false
+default_value:
+  -
+    target_uuid: 5ad35076-013a-4124-aa1a-8c4cd783a62e
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      staff: staff
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

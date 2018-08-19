@@ -1,0 +1,8 @@
+# Страница персонал.
+site_staff.view:
+  path: '/personal'
+  defaults:       
+    _controller: '\Drupal\site_staff\Controller\StaffController::view'    
+    _title_callback: '\Drupal\site_staff\Controller\StaffController::getTitle'
+  requirements:
+    _permission: 'access content'

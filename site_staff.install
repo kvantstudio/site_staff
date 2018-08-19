@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install file for the site_staff.module.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function site_staff_install() {
+    // Создает термин Специальность не указана.
+    $term = Term::create([
+        'name' => 'Специальность не указана',
+        'vid' => 'staff',
+    ]);
+    $term->save();
+}
