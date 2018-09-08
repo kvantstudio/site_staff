@@ -16,3 +16,16 @@
 .view-header__term-description {
     margin-bottom: 1em;
 }
+
+@media (min-width: 1200px) {
+    .node__staff {
+        display: flex;
+    }
+    .node__staff-data-left {
+        width: 60%;
+        padding-right: 2rem;
+    }
+    .node__staff-data-right {
+        width: 40%;
+    }
+}

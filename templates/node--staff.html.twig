@@ -1,20 +1,27 @@
 {% if page %}
-<article class="node">
-    <div{{ content_attributes.addClass( 'node__content', 'clearfix') }}>        
-        <div class="node__image node__image--full">
-            {{ content.field_image_staff }}            
-        </div>        
-        <div class="node__summary">{{ content.field_summary }}</div> 
-        <div class="node__body">{{ content.body }}</div>
-    </div>
-</article>
+    {% set reviews = getReviewsListByStaffer(node) %}
+    <article class="node">
+        <div{{ content_attributes.addclass( 'node__content', 'node__staff', 'clearfix') }}>
+            <div class="node__staff-data-left">
+                <div class="node__image node__image--full">
+                    {{ content.field_image_staff }}
+                </div>
+                <div class="node__summary">{{ content.field_summary }}</div>
+                <div class="node__body">{{ content.body }}</div>
+            </div>
+            <div class="node__staff-data-right">
+                {{ content.field_specialty }}
+                {{ reviews }}
+            </div>
+        </div>
+    </article>
 {% else %}
-<article class="node">
-    <div{{ content_attributes.addClass( 'node__content', 'clearfix') }}>        
-        <div class="node__image node__image--full">
-            {{ content.field_image_staff }}            
-        </div>        
-        <div class="node__summary">{{ content.field_summary }}</div>        
-    </div>
-</article>
+    <article class="node">
+        <div{{ content_attributes.addclass( 'node__content', 'clearfix') }}>
+            <div class="node__image node__image--full">
+                {{ content.field_image_staff }}
+            </div>
+            <div class="node__summary">{{ content.field_summary }}</div>
+        </div>
+    </article>
 {% endif %}

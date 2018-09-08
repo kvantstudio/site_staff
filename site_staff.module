@@ -15,43 +15,57 @@ use Drupal\site_staff\Controller\StaffController;
  * Implements hook_theme().
  */
 function site_staff_theme($existing, $type, $theme, $path) {
-    return array(
-        'staff' => array(
-            'variables' => array('nodes' => NULL),
-            'template' => 'staff',
-        ),
-        'taxonomy_term__staff' => array(
-            'variables' => [],
-            'template' => 'taxonomy-term--staff',
-        ),
-        'node__staff' => array(
-            'variables' => [],
-            'template' => 'node--staff',
-        ),
-        'node__staff_links' => array(
-            'variables' => array('node' => NULL),
-            'template' => 'node--staff-links',
-        ),
-    );
+  return array(
+    'staff' => array(
+      'variables' => array('nodes' => NULL),
+      'template' => 'staff',
+    ),
+    'taxonomy_term__staff' => array(
+      'variables' => [],
+      'template' => 'taxonomy-term--staff',
+    ),
+    'node__staff' => array(
+      'variables' => [],
+      'template' => 'node--staff',
+    ),
+    'node__staff_links' => array(
+      'variables' => array('node' => NULL),
+      'template' => 'node--staff-links',
+    ),
+  );
 }
 
 /**
  * Implements hook_system_breadcrumb_alter().
  */
 function site_staff_system_breadcrumb_alter(\Drupal\Core\Breadcrumb\Breadcrumb &$breadcrumb, \Drupal\Core\Routing\RouteMatchInterface $route_match, array $context) {
-    if ($route_match->getRouteName() == 'entity.taxonomy_term.canonical' && $route_match->getParameter('taxonomy_term')->getVocabularyId() == 'staff') {
-        $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute(t('Staff'), 'site_staff.view'));
-    }
+  if ($route_match->getRouteName() == 'entity.taxonomy_term.canonical' && $route_match->getParameter('taxonomy_term')->getVocabularyId() == 'staff') {
+    $breadcrumb->addLink(\Drupal\Core\Link::createFromRoute(t('Staff'), 'site_staff.view'));
+  }
 }
 
 /**
  * Implements hook_page_attachments().
  */
 function site_staff_page_attachments(array &$attachments) {
-    $current_path = \Drupal::service('path.current')->getPath();
-    if (strpos($current_path, "/personal/") >= 0) {
-        $attachments['#attached']['library'][] = 'site_staff/module';
-    }
+  $current_path = \Drupal::service('path.current')->getPath();
+  if (strpos($current_path, "/personal/") >= 0) {
+    $attachments['#attached']['library'][] = 'site_staff/module';
+  }
+}
+
+/**
+ * Формирует перечень активных сотрудников.
+ */
+function getStaffMembers() {
+  $db = \Drupal::database();
+  $query = $db->select('node_field_data', 'n');
+  $query->condition('n.status', 1);
+  $query->condition('n.type', 'staff');
+  $query->fields('n', array('nid', 'title'));
+  $query->orderBy('n.title', 'DESC');
+
+  return $query->execute()->fetchAllKeyed();
 }
 
 /**
@@ -60,18 +74,18 @@ function site_staff_page_attachments(array &$attachments) {
  * @param array $variables
  */
 function template_preprocess_taxonomy_term__staff(&$variables) {
-    $url = \Drupal\Core\Url::fromRoute('<current>');
-    $path = $url->getInternalPath();
+  $url = \Drupal\Core\Url::fromRoute('<current>');
+  $path = $url->getInternalPath();
 
-    $tid = (int) substr($path, 14);
-    
-    // Описание категории.
-    $term = \Drupal\taxonomy\Entity\Term::load($tid);
-    $variables['term_description'] = $term->getDescription();
-    
-    // Подгружает сотрудников по категории.
-    $renderData = StaffController::view(0, $tid);
-    $variables['term_staff'] = \Drupal::service('renderer')->render($renderData, FALSE);
+  $tid = (int) substr($path, 14);
+
+  // Описание категории.
+  $term = \Drupal\taxonomy\Entity\Term::load($tid);
+  $variables['term_description'] = $term->getDescription();
+
+  // Подгружает сотрудников по категории.
+  $renderData = StaffController::view(0, $tid);
+  $variables['term_staff'] = \Drupal::service('renderer')->render($renderData, FALSE);
 }
 
 /**
@@ -80,32 +94,32 @@ function template_preprocess_taxonomy_term__staff(&$variables) {
  * @param array $variables
  */
 function template_preprocess_staff(&$variables) {
-    $nodes = $variables['nodes'];
+  $nodes = $variables['nodes'];
 
-    $viewmode = 'default';
-    $entityType = 'node';
-    $display = entity_get_display($entityType, 'staff', $viewmode);
-    $viewBuilder = \Drupal::entityTypeManager()->getViewBuilder($entityType);
+  $viewmode = 'default';
+  $entityType = 'node';
+  $display = entity_get_display($entityType, 'staff', $viewmode);
+  $viewBuilder = \Drupal::entityTypeManager()->getViewBuilder($entityType);
 
-    $variables['nodes_employees'] = [];
+  $variables['nodes_employees'] = [];
 
-    $fieldsToRender = array(
-        'field_summary', 'field_image_staff', 'title',
-    );    
-    
-    $variables['count_nodes'] = 0;
+  $fieldsToRender = array(
+    'field_summary', 'field_image_staff', 'title',
+  );
 
-    foreach ($nodes as $node) {
-        foreach ($fieldsToRender as $field_name) {
-            if (isset($node->{$field_name}) && $field = $node->{$field_name}) {
-                $fieldRenderable = $viewBuilder->viewField($field, $display->getComponent($field_name));
-                if (count($fieldRenderable) && !empty($fieldRenderable)) {
-                    $variables['nodes_employees'][$node->id()][$field_name] = drupal_render($fieldRenderable);                    
-                }
-            }
+  $variables['count_nodes'] = 0;
+
+  foreach ($nodes as $node) {
+    foreach ($fieldsToRender as $field_name) {
+      if (isset($node->{$field_name}) && $field = $node->{$field_name}) {
+        $fieldRenderable = $viewBuilder->viewField($field, $display->getComponent($field_name));
+        if (count($fieldRenderable) && !empty($fieldRenderable)) {
+          $variables['nodes_employees'][$node->id()][$field_name] = drupal_render($fieldRenderable);
         }
-        $variables['count_nodes'] = $variables['count_nodes'] + 1;        
-    }        
+      }
+    }
+    $variables['count_nodes'] = $variables['count_nodes'] + 1;
+  }
 }
 
 /**
@@ -114,57 +128,57 @@ function template_preprocess_staff(&$variables) {
  * @param array $variables
  */
 function template_preprocess_node__staff(&$variables) {
-    $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
 
-    // Provide a distinct $teaser boolean.
-    $variables['teaser'] = $variables['view_mode'] == 'teaser';
-    $variables['node'] = $variables['elements']['#node'];
+  // Provide a distinct $teaser boolean.
+  $variables['teaser'] = $variables['view_mode'] == 'teaser';
+  $variables['node'] = $variables['elements']['#node'];
 
-    /** @var \Drupal\node\NodeInterface $node */
-    $node = $variables['node'];
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
 
-    $variables['date'] = \Drupal::service('date.formatter')->format($node->getCreatedTime(), 'long');
-    unset($variables['elements']['created']);
+  $variables['date'] = \Drupal::service('date.formatter')->format($node->getCreatedTime(), 'long');
+  unset($variables['elements']['created']);
 
-    $variables['author_name'] = drupal_render($variables['elements']['uid']);
-    unset($variables['elements']['uid']);
+  $variables['author_name'] = drupal_render($variables['elements']['uid']);
+  unset($variables['elements']['uid']);
 
-    $variables['url'] = $node->url('canonical', array(
-        'language' => $node->language(),
-    ));
-    $variables['label'] = $variables['elements']['title'];
-    unset($variables['elements']['title']);
+  $variables['url'] = $node->url('canonical', array(
+    'language' => $node->language(),
+  ));
+  $variables['label'] = $variables['elements']['title'];
+  unset($variables['elements']['title']);
 
-    // The 'page' variable is set to TRUE in two occasions:
-    //   - The view mode is 'full' and we are on the 'node.view' route.
-    //   - The node is in preview and view mode is either 'full' or 'default'.
-    $variables['page'] = ($variables['view_mode'] == 'full' && (node_is_page($node)) || (isset($node->in_preview) && in_array($node->preview_view_mode, array('full', 'default'))));
+  // The 'page' variable is set to TRUE in two occasions:
+  //   - The view mode is 'full' and we are on the 'node.view' route.
+  //   - The node is in preview and view mode is either 'full' or 'default'.
+  $variables['page'] = ($variables['view_mode'] == 'full' && (node_is_page($node)) || (isset($node->in_preview) && in_array($node->preview_view_mode, array('full', 'default'))));
 
-    // Helpful $content variable for templates.
-    $variables += array('content' => array());
-    foreach (Element::children($variables['elements']) as $key) {
-        $variables['content'][$key] = $variables['elements'][$key];
+  // Helpful $content variable for templates.
+  $variables += array('content' => array());
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  // Дополнительная информация.
+  $node_type = $node->type->entity;
+  $variables['author_attributes'] = new Attribute();
+  $variables['display_submitted'] = $node_type->displaySubmitted();
+  if ($variables['display_submitted']) {
+    if (theme_get_setting('features.node_user_picture')) {
+      $variables['author_picture'] = user_view($node->getOwner(), 'compact');
     }
+  }
 
-    // Дополнительная информация.
-    $node_type = $node->type->entity;
-    $variables['author_attributes'] = new Attribute();
-    $variables['display_submitted'] = $node_type->displaySubmitted();
-    if ($variables['display_submitted']) {
-        if (theme_get_setting('features.node_user_picture')) {
-            $variables['author_picture'] = user_view($node->getOwner(), 'compact');
-        }
-    }
+  // Добавляет роль СТАТЬЯ для региона.
+  $variables['attributes']['role'] = 'article';
 
-    // Добавляет роль СТАТЬЯ для региона.
-    $variables['attributes']['role'] = 'article';
-
-    // Подгружает похожих сотрудников.
-    $renderData = array(
-        '#theme' => 'node__staff_links',
-        '#node' => $node,
-    );
-    $variables['node_staff_links'] = \Drupal::service('renderer')->render($renderData, FALSE);
+  // Подгружает похожих сотрудников.
+  $renderData = array(
+    '#theme' => 'node__staff_links',
+    '#node' => $node,
+  );
+  $variables['node_staff_links'] = $renderData;
 }
 
 /**
@@ -173,33 +187,27 @@ function template_preprocess_node__staff(&$variables) {
  * @param array $variables
  */
 function template_preprocess_node__staff_links(&$variables) {
-    $database = Database::getConnection();
-    $node = $variables['node'];
+  $database = Database::getConnection();
+  $node = $variables['node'];
 
-    // Перечень материалов связанных.
-    $query = $database->select('node__field_node_links', 'n');
-    $query->fields('n', array('field_node_links_target_id'));
-    $query->condition('n.bundle', 'staff');
-    $query->condition('n.entity_id', $node->id());
-    $result = $query->execute();
+  // Перечень материалов связанных.
+  $query = $database->select('node__field_node', 'n');
+  $query->fields('n', array('field_node_target_id'));
+  $query->condition('n.bundle', 'staff');
+  $query->condition('n.entity_id', $node->id());
+  $result = $query->execute();
 
-    $view_builder = \Drupal::entityManager()->getViewBuilder('node');
-    $variables['nodes_links_teaser'] = [];
-    foreach ($result as $row) {
-        $node = Node::load($row->field_node_links_target_id);
+  $view_builder = \Drupal::entityManager()->getViewBuilder('node');
+  $variables['nodes_links_teaser'] = [];
+  foreach ($result as $row) {
+    $node = Node::load($row->field_node_target_id);
 
-        //$variables['node_teaser'] = $view_builder->view($node, 'teaser');
-        //$variables['node_full'] = $view_builder->view($node, 'full');
-        //$variables['body_full'] = $node->body->view('full');
-        //$variables['body_teaser'] = $node->body->view('teaser');
+    $variables['nodes_links_teaser'][$node->id()]['node'] = $node;
+    $variables['nodes_links_teaser'][$node->id()]['title'] = $node->getTitle();
+    $variables['nodes_links_teaser'][$node->id()]['created'] = \Drupal::service('date.formatter')->format($node->getCreatedTime(), 'short');
 
-        //$variables['nodes_links_teaser'][$node->id()]['teaser'] = $view_builder->view($node, 'teaser');
-        $variables['nodes_links_teaser'][$node->id()]['node'] = $node;
-        $variables['nodes_links_teaser'][$node->id()]['title'] = $node->getTitle();
-        $variables['nodes_links_teaser'][$node->id()]['created'] = \Drupal::service('date.formatter')->format($node->getCreatedTime(), 'short');
-
-        // Путь до node.
-        $path = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $node->id());
-        $variables['nodes_links_teaser'][$node->id()]['path'] = $path;
-    }
+    // Путь до node.
+    $path = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $node->id());
+    $variables['nodes_links_teaser'][$node->id()]['path'] = $path;
+  }
 }
